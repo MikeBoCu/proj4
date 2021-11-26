@@ -30,6 +30,10 @@ class Maze {
 
 
     void breakRandomWall(int &currentRoom) {
+
+        //TODO need to check if path already exists (ex edge 0 1 is the same as 1 0)
+        //TODO if edge already exists, need to use a different path instead
+
         int randInt;
         std::shared_ptr<int> selectedRoom = nullptr;
 
@@ -48,7 +52,7 @@ class Maze {
         auto *edge = new std::pair<int, int>(currentRoom, *selectedRoom);
         edgeList.push_back(*edge);
         //edgeList[currentRoom].push_back(*selectedRoom);
-        edge = nullptr;
+        //edge = nullptr;
     }
 
     void addRoomatesToStack(int &currentRoom) {
@@ -73,7 +77,7 @@ class Maze {
         }
     }
 
-    std::shared_ptr<int> getNorthRoomate(int &currentRoom) {
+    std::shared_ptr<int> getNorthRoomate(int &currentRoom) const {
         int nRoom = currentRoom + mazeSize;
         if (nRoom < numOfRooms - 1)
             return std::make_shared<int>(nRoom);
@@ -81,7 +85,7 @@ class Maze {
             return nullptr;
     }
 
-    std::shared_ptr<int> getSouthRoomate(int &currentRoom) {
+    std::shared_ptr<int> getSouthRoomate(int &currentRoom) const {
         int sRoom = currentRoom - mazeSize;
         if (sRoom >= 0)
             return std::make_shared<int>(sRoom);
@@ -89,27 +93,27 @@ class Maze {
             return nullptr;
     }
 
-    std::shared_ptr<int> getWestRoomate(int &currentRoom) {
+    std::shared_ptr<int> getWestRoomate(int &currentRoom) const {
         if (currentRoom % mazeSize == 0) {
             return nullptr;
         } else
             return std::make_shared<int>(currentRoom - 1);
     }
 
-    std::shared_ptr<int> getEastRoomate(int &currentRoom) {
+    std::shared_ptr<int> getEastRoomate(int &currentRoom) const {
         if ((currentRoom + 1) % mazeSize == 0)
             return nullptr;
         else
             return std::make_shared<int>(currentRoom + 1);
     }
-    int getRowNum(int roomNum){
+    int getRowNum(int roomNum) const{
         if(roomNum == 0)
             return 0;
         else
             return roomNum / mazeSize;
     }
 
-    int getColNum(int roomNum){
+    int getColNum(int roomNum) const{
         int colNum;
         colNum = (roomNum % mazeSize);
         if(colNum == mazeSize) colNum = 0;
@@ -117,12 +121,12 @@ class Maze {
         return colNum;
     }
 
-    int getLiteralRowNum(int r){
+    int getLiteralRowNum(int r) const{
         int litRowNum = (mazeSize + mazeSize/2 + 1) - r*2;
         return litRowNum;
     }
 
-    int getLiteralColNum(int c){
+    int getLiteralColNum(int c) const{
         int litColNum = c + mazeSize - (mazeSize- c - 1);
         return litColNum;
     }
@@ -153,13 +157,13 @@ public:
 
     void printMaze() {
 
-        //TODO create 2d array using vectors or array library i guess
+        //TODO clean this method into sub methods
+
         int gridSize = (mazeSize << 1) + 1;
         //char *mazeArray = new char[mazeSize];
 
         std::vector<std::vector<char>> mazeArray(gridSize, std::vector<char> (gridSize));
 
-        int roomCounter = gridSize;
         for (int row = 0; row < gridSize; row++) {
             bool isRowOdd = row % 2;
             for (int col = 0; col < gridSize; col++) {
@@ -167,12 +171,7 @@ public:
                     mazeArray[row][col] = 'x';
                 else {
                     if (col % 2) {
-                        mazeArray[row][col] = '0'; //+ roomCounter;
-                        if (roomCounter % mazeSize == 0)
-                            roomCounter -= mazeSize * 2 - 1;
-                        else
-                            roomCounter++;
-
+                        mazeArray[row][col] = '.';
                     } else
                         mazeArray[row][col] = 'x';
                 }
@@ -187,23 +186,15 @@ public:
             r = getLiteralRowNum(r);
             c = getLiteralColNum(c);
 
-            //TODO: need to create holes in the walls
-            if(edge.second == edge.first+1);
-
+            if(edge.second == edge.first+1)
+                mazeArray[r][c+1] = '.';
+            else if(edge.second == edge.first-1)
+                mazeArray[r][c-1] = '.';
+            else if(edge.second > edge.first +1)
+                mazeArray[r-1][c] = '.';
+            else if(edge.second < edge.first -1)
+                mazeArray[r+1][c] = '.';
         }
-
-        int roomNum = 11;
-
-        int r = getRowNum(roomNum);
-        int c = getColNum(roomNum);
-
-        r = getLiteralRowNum(r);
-        c = getLiteralColNum(c);
-
-        mazeArray[r][c] = '#';
-
-
-
 
         for (int row = 0; row < gridSize; row++) {
             for (int col = 0; col < gridSize; col++) {
