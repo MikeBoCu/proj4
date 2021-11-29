@@ -23,9 +23,10 @@ class Maze {
     const int numOfRooms = mazeSize * mazeSize;
 
     std::set<int> visitedRooms;
+    std::set<std::pair<int,int>> edgeList;
     std::stack<int> workToDo;
 
-    std::list<std::pair<int,int>> edgeList;
+    //std::list<std::pair<int,int>> edgeList;
     //std::list<int> *edgeList = new std::list<int>[numOfRooms];
 
 
@@ -36,6 +37,8 @@ class Maze {
 
         int randInt;
         std::shared_ptr<int> selectedRoom = nullptr;
+        auto *edgeOne = new std::pair<int, int>();
+        auto *edgeTwo = new std::pair<int, int>();
 
         while (selectedRoom == nullptr) {
             randInt = getRandInt(0, 3);
@@ -47,11 +50,24 @@ class Maze {
                 selectedRoom = getWestRoomate(currentRoom);
             else if (randInt == 3)
                 selectedRoom = getEastRoomate(currentRoom);
+            if(selectedRoom != nullptr) {
+                edgeOne->first = currentRoom;
+                edgeOne->second = *selectedRoom;
+
+                edgeTwo->first = *selectedRoom;
+                edgeTwo->second = currentRoom;
+            }
+
+            if(selectedRoom != nullptr && (edgeList.find(*edgeOne) != edgeList.end() || edgeList.find(*edgeTwo) != edgeList.end()))
+                selectedRoom = nullptr;
+
         }
 
-        auto *edge = new std::pair<int, int>(currentRoom, *selectedRoom);
-        edgeList.push_back(*edge);
-        //edgeList[currentRoom].push_back(*selectedRoom);
+        //auto *edge = new std::pair<int, int>(currentRoom, *selectedRoom);
+
+        //edgeList.push_back(*edge);
+        edgeList.insert(*edgeOne);
+        delete edgeTwo;
         //edge = nullptr;
     }
 
